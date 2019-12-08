@@ -1,0 +1,91 @@
+<html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/index.css"/>
+	</head>
+
+	<body>
+		<form action="" method="post">
+			<select name="province" id="province"></select>
+			<select name="city" id="city"></select>
+			<select name="area" id="area"></select>
+		</form>
+	</body>
+	<script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="js/PCA.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			//存放当前选中省、市、区
+			var thisprovince, thiscity, thisarea;
+			//存放一级索引值、二级索引值
+			var key1, key2;
+
+			//渲染省
+			$.each(PCA[0], function(n, value) {
+				//创建下拉列表的子节点
+				var $new = $('<option>' + value + '</option>');
+				$("#province").append($new);
+				//初次使用更新一下市和区
+				updateCity();
+			})
+
+			//渲染市--监听省下拉框
+			$("#province").change(function() {
+				updateCity();
+			});
+
+			//渲染区--监听市下拉框
+			$("#city").change(function() {
+				updateArea();
+			});
+			//渲染市函数封装
+			function updateCity() {
+				//初始化
+				$("#city").empty();
+				//根据选中省获取当前key值
+				$.each(PCA[0], function(n, value) {
+					if($("#province").val() === value) {
+						//更新省
+						thisprovince = n;
+						//更新索引值
+						key1 = '0,' + n;
+						//遍历创建下拉列表的子节点
+						$.each(PCA[key1], function(n, value) {
+							var $new = $('<option>' + value + '</option>');
+							$("#city").append($new);
+						})
+
+					}
+				})
+				//这里也要更新，不然有有些特殊市加载不出区
+				//因为change()并不会监听到被动改变的事件，所以这里手动调用区更新
+				updateArea();
+			}
+
+			//渲染区函数封装
+			function updateArea() {
+				//初始化
+				$("#area").empty();
+				//根据选中市获取当前key值
+				$.each(PCA[key1], function(n, value) {
+					if($('#city').val() === value) {
+						//更新市
+						thiscity = n;
+						//更新索引值
+						key2 = '0,' + thisprovince + ',' + n;
+						//遍历创建下拉列表的子节点
+						$.each(PCA[key2], function(n, value) {
+							var $new = $('<option>' + value + '</option>');
+							$("#area").append($new);
+						})
+					}
+				})
+			}
+
+		});
+	</script>
+
+</html>
